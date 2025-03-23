@@ -9,6 +9,7 @@ int main(){
 
     void ***ptr = malloc(3*sizeof(void **));
 
+    
     ptr[0] = malloc(a*sizeof(void*));
     for(int i=0; i<a; i++){
         ptr[0][i] = malloc(b*sizeof(int));
@@ -23,15 +24,12 @@ int main(){
         }
     }
 
-    // int array 출력
     for(int j=0; j<a; j++){
         for(int k=0; k<b; k++){
              printf("%d ", ((int **)ptr[0])[j][k]);
         }
         printf("\n");
     }
-
-
 
 
 
@@ -62,31 +60,36 @@ int main(){
 
 
 
-
     ptr[2] = malloc(c*sizeof(void*));
     
     for(int i=0; i<c; i++){
-        ptr[2][i] = malloc(a*sizeof(char));
+        ptr[2][i] = (char**)malloc(a*sizeof(char*));
     }
 
     char *str = malloc(a*sizeof(char));
+    for (int j = 0; j < c; j++) {
+        for (int k = 0; k < a; k++) {
+            ((char **)ptr[2][j])[k] = malloc(5 * sizeof(char));  
+        }
+    }
     printf("문자열을 입력하세요: ");
 
     for(int j=0; j<c; j++){
         for(int k=0; k<a; k++){
-            scanf("%s", &((char **)ptr[2])[j][k]);
+            scanf("%4s", ((char **)ptr[2][j])[k]);
         }
     }
 
     //string array 출력
     for(int j=0; j<c; j++){
         for(int k=0; k<a; k++){
-             printf("%s ", ((char **)ptr[2])[j][k]);
+             printf("%s ", ((char **)ptr[2][j])[k]);
         }
         printf("\n");
     }
 
 
 
+    free(ptr);
     return 0;
 }
