@@ -33,13 +33,13 @@ int main(){
 
     simpleMaze(miro, totalRow, totalCol, simpledMaze);
 
-    printf("미로를 칸으로 표현, 칸의 형태에 따라 알파벳 타입 설정:\n");
-    for (int i=0;i<boxRow;i++) {
-        for (int j=0;j<boxCol;j++) {
-            printf("%c", simpledMaze[i][j]);
-        }
-        printf("\n");
-    }
+    // printf("미로를 칸으로 표현, 칸의 형태에 따라 알파벳 타입 설정:\n");
+    // for (int i=0;i<boxRow;i++) {
+    //     for (int j=0;j<boxCol;j++) {
+    //         printf("%c", simpledMaze[i][j]);
+    //     }
+    //     printf("\n");
+    // }
     
 
     drawMaze(simpledMaze, boxRow, boxCol);
@@ -103,39 +103,90 @@ void drawMaze(char **simpledMaze, int boxRow, int boxCol) {
 
     for (int i=0;i<boxRow;i++) {
         for (int j=0;j<boxCol;j++) {
-            int y = 2 * i;
-            int x = 2 * j;
 
             char tempBox = simpledMaze[i][j];
 
             // 모퉁이 부분
-            reDrawnMaze[y][x] = '+';
-            reDrawnMaze[y][x+2] = '+';
-            reDrawnMaze[y+2][x] = '+';
-            reDrawnMaze[y+2][x+2] = '+';
+            reDrawnMaze[2*i][2*j] = '-';
+            reDrawnMaze[2*i+1][2*j+1] = '-';
+            
 
             // 길
-            reDrawnMaze[y+1][x+1] = ' ';
+            reDrawnMaze[2*i+1][2*j+1] = ' ';
 
+
+            
             // 왼쪽 벽: 첫 줄이거나 왼쪽 칸의 오른쪽 벽이 막혀 있는 경우
             if (j==0 || simpledMaze[i][j-1]=='c' || simpledMaze[i][j-1]=='d') {
-                reDrawnMaze[y+1][x] = '|';
+                reDrawnMaze[2*i+1][2*j] = '|';
             }
 
             // 위쪽 벽: 첫 줄이거나 위쪽 칸의 아래쪽 벽이 막혀 있는 경우
             if (i==0|| simpledMaze[i-1][j]=='b' || simpledMaze[i-1][j]=='d') {
-                reDrawnMaze[y][x+1] = '-';
+                reDrawnMaze[2*i][2*j+1] = '-';
             }
 
             // 오른쪽 벽 (현재 칸 기준)
             if (tempBox=='c' || tempBox=='d') {
-                reDrawnMaze[y+1][x+2] = '|';
+                reDrawnMaze[2*i+1][2*j+2] = '|';
             }
 
             // 아래쪽 벽 (현재 칸칸 기준)
             if (tempBox=='b' || tempBox=='d') {
-                reDrawnMaze[y+2][x+1] = '-';
+                reDrawnMaze[2*i+2][2*j+1] = '-';
             }
+
+
+            // 마지막 행과 마지막 열 구현현
+            if (j==boxCol-1){
+                reDrawnMaze[2*i][2*j+2] = '|';
+            }
+            if (i==boxRow-1){
+                reDrawnMaze[2*i+2][2*j] = '-';
+            }
+
+            for (int i = 0; i < newRow; i += 2) {
+                for (int j = 0; j < newCol; j += 2) {
+            
+                    if (((j + 1 < newCol && reDrawnMaze[i][j + 1] == '-') ||
+                         (j - 1 >= 0     && reDrawnMaze[i][j - 1] == '-')) &&
+                        ((i + 1 < newRow && reDrawnMaze[i + 1][j] == '|') ||
+                         (i - 1 >= 0     && reDrawnMaze[i - 1][j] == '|'))) {
+            
+                        reDrawnMaze[i][j] = '+';  // 양쪽 다 있으면 +
+            
+                    } else if ((j + 1 < newCol && reDrawnMaze[i][j + 1] == '-') ||
+                               (j - 1 >= 0     && reDrawnMaze[i][j - 1] == '-')) {
+            
+                        reDrawnMaze[i][j] = '-';  // 가로 벽만 있으면 -
+            
+                    } else if ((i + 1 < newRow && reDrawnMaze[i + 1][j] == '|') ||
+                               (i - 1 >= 0     && reDrawnMaze[i - 1][j] == '|')) {
+            
+                        reDrawnMaze[i][j] = '|';  // 세로 벽만 있으면 |
+            
+                    } else {
+                        reDrawnMaze[i][j] = ' ';  // 아무것도 없으면 공백
+                    }
+                }
+            }
+            
+            for (int i = 0; i < newRow; i += 2) {
+                for (int j = 0; j < newCol; j += 2) {
+                    int wallCount = 0;
+            
+                    if (j + 1 < newCol && reDrawnMaze[i][j + 1] == '-') wallCount++;  // 오른쪽
+                    if (j - 1 >= 0     && reDrawnMaze[i][j - 1] == '-') wallCount++;  // 왼쪽
+                    if (i + 1 < newRow && reDrawnMaze[i + 1][j] == '|') wallCount++;  // 아래
+                    if (i - 1 >= 0     && reDrawnMaze[i - 1][j] == '|') wallCount++;  // 위
+            
+                    if (wallCount == 1) {
+                        reDrawnMaze[i][j] = '+';  // 오직 하나의 벽만 있을 때 +
+                    }
+                }
+            }
+
+            
         }
     }
 

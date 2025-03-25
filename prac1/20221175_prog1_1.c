@@ -88,8 +88,27 @@ int main(){
         printf("\n");
     }
 
+        
+    for (int i = 0; i < a; i++) {
+        free(ptr[0][i]); 
+    }
+    free(ptr[0]);        
 
+    
+    for (int i = 0; i < b; i++) {
+        free(ptr[1][i]);  
+    }
+    free(ptr[1]);       
 
+    for (int i = 0; i < c; i++) {
+        for (int j = 0; j < a; j++) {
+            free(((char **)ptr[2][i])[j]);  
+        }
+        free(ptr[2][i]);  
+    }
+    free(ptr[2]);         
+    
     free(ptr);
+
     return 0;
 }
