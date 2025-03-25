@@ -1,95 +1,72 @@
 #include <stdio.h>
-#include <malloc.h>
-#include <string.h>
+#include <stdlib.h>
 
-int main(){
-    int a,b,c;
-    printf("a? b? c?: ");
-    scanf("%d %d %d", &a, &b, &c);
+// 함수 원형 선언
+void compressMaze(char **miro, int totalRow, int totalCol, char **compressedMaze);
 
-    void ***ptr = malloc(3*sizeof(void **));
+int main() {
+    int totalRow, totalCol;
+    FILE *fp = fopen("maze1-1.txt", "r");
 
+    fscanf(fp, "%d %d\n", &totalCol, &totalRow);
+
+    // 미로 텍스트 데이터 저장
+    char **miro = malloc(sizeof(char*) * totalRow);
+    for (int i = 0; i < totalRow + 1; i++) {
+        miro[i] = malloc(sizeof(char) * (totalCol + 1));
+        fgets(miro[i], totalCol + 2, fp);
+    }
+
+    // 압축 미로 저장 공간
+    char **compressedMaze = malloc(sizeof(char*) * totalRow/2);
+    for (int i = 0; i < totalRow/2; i++) {
+        compressedMaze[i] = malloc(sizeof(char) * totalCol/2);
+    }
+
+    compressMaze(miro, totalRow, totalCol, compressedMaze);
+
+    // 출력 테스트
+
+    int a,b;
     
-    ptr[0] = malloc(a*sizeof(void*));
-    for(int i=0; i<a; i++){
-        ptr[0][i] = malloc(b*sizeof(int));
-    }
-
-    int *num = malloc(b*sizeof(int));
-    printf("정수를 입력하세요: ");
-
-    for(int j=0; j<a; j++){
-        for(int k=0; k<b; k++){
-            scanf("%d", &((int **)ptr[0])[j][k]);
-        }
-    }
-
-    for(int j=0; j<a; j++){
-        for(int k=0; k<b; k++){
-             printf("%d ", ((int **)ptr[0])[j][k]);
+    printf("압축 미로:\n");
+    for (int i = 0; i < totalRow/2; i++) {
+        for (int j = 0; j < totalCol/2; j++) {
+            printf("%c", compressedMaze[i][j]);
         }
         printf("\n");
     }
 
-
-
-
-    ptr[1] = malloc(b*sizeof(void*));
-    for(int i=0; i<b; i++){
-        ptr[1][i] = malloc(c*sizeof(float));
+    // 메모리 해제
+    for (int i = 0; i < totalRow; i++) {
+        free(miro[i]);
     }
+    free(miro);
 
-    float *flNum = malloc(c*sizeof(float));
-    printf("소수를 입력하세요: ");
-
-    for(int j=0; j<b; j++){
-        for(int k=0; k<c; k++){
-            scanf("%f", &((float **)ptr[1])[j][k]);
-        }
+    for (int i = 0; i < totalRow; i++) {
+        free(compressedMaze[i]);
     }
+    free(compressedMaze);
 
-    //float array 출력
-    for(int j=0; j<b; j++){
-        for(int k=0; k<c; k++){
-             printf("%f ", ((float **)ptr[1])[j][k]);
-        }
-        printf("\n");
-    }
-
-
-
-
-
-    ptr[2] = malloc(c*sizeof(void*));
-    
-    for(int i=0; i<c; i++){
-        ptr[2][i] = (char**)malloc(a*sizeof(char*));
-    }
-
-    char *str = malloc(a*sizeof(char));
-    for (int j = 0; j < c; j++) {
-        for (int k = 0; k < a; k++) {
-            ((char **)ptr[2][j])[k] = malloc(5 * sizeof(char));  
-        }
-    }
-    printf("문자열을 입력하세요: ");
-
-    for(int j=0; j<c; j++){
-        for(int k=0; k<a; k++){
-            scanf("%4s", ((char **)ptr[2][j])[k]);
-        }
-    }
-
-    //string array 출력
-    for(int j=0; j<c; j++){
-        for(int k=0; k<a; k++){
-             printf("%s ", ((char **)ptr[2][j])[k]);
-        }
-        printf("\n");
-    }
-
-
-
-    free(ptr);
+    fclose(fp);
     return 0;
+}
+
+
+void compressMaze(char **miro, int totalRow, int totalCol, char **compressedMaze) {
+    for (int i = 0; i < totalRow/2; i++) {
+        for (int j = 0; j < totalCol/2; j++) {
+            int down  = (miro[2*i + 2][2*j + 1] == '-');
+            int right = (miro[2*i + 1][2*j + 2] == '|');
+
+            if (!down && !right)
+                compressedMaze[i][j] = 'a';
+            else if (down && !right)
+                compressedMaze[i][j] = 'b';
+            else if (!down && right)
+                compressedMaze[i][j] = 'c';
+            else
+                compressedMaze[i][j] = 'd';
+        }
+    }
 }
