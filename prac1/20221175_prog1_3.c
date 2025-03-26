@@ -16,7 +16,7 @@ int main(){
     char **miro = malloc(sizeof(char*) * totalRow);
 
     //미로 원본을 저장하기 위한 메모리 할당
-    for (int i=0;i<totalRow;i++) {
+    for(int i=0;i<totalRow;i++) {
         miro[i] = malloc(sizeof(char) * (totalCol+2));  
         fgets(miro[i], totalCol+3, fp); 
 
@@ -34,6 +34,8 @@ int main(){
     simpleMaze(miro, totalRow, totalCol, simpledMaze);
 
     // printf("미로를 칸으로 표현, 칸의 형태에 따라 알파벳 타입 설정:\n");
+
+    // abcd 2차원 문자열 형태로 저장한 것을 출력력
     // for (int i=0;i<boxRow;i++) {
     //     for (int j=0;j<boxCol;j++) {
     //         printf("%c", simpledMaze[i][j]);
@@ -44,28 +46,29 @@ int main(){
 
     drawMaze(simpledMaze, boxRow, boxCol);
 
-    for (int i=0;i<totalRow;i++) {
+    for(int i=0;i<totalRow;i++) {
         free(miro[i]);
     }
+
     free(miro);
 
-    for (int i=0;i<boxRow;i++) {
+    for(int i=0;i<boxRow;i++) {
         free(simpledMaze[i]);
     }
+
     free(simpledMaze);
 
     fclose(fp);
+
     return 0;
-
-
 }
 
 void simpleMaze(char **miro, int totalRow, int totalCol, char **simpledMaze) {
     int boxRow = totalRow / 2;
     int boxCol = totalCol / 2;
 
-    for (int i = 0; i < boxRow; i++) {
-        for (int j = 0; j < boxCol; j++) {
+    for(int i=0;i<boxRow;i++) {
+        for(int j=0;j<boxCol;j++) {
             int down  = (miro[2*i+2][2*j+1] == '-');
             int right = (miro[2*i+1][2*j+2] == '|');
             
@@ -89,81 +92,62 @@ void simpleMaze(char **miro, int totalRow, int totalCol, char **simpledMaze) {
 }
 
 void drawMaze(char **simpledMaze, int boxRow, int boxCol) {
-    int newRow = 2 * boxRow + 1;
-    int newCol = 2 * boxCol + 1;
+    int newRow = 2*boxRow + 1;
+    int newCol = 2*boxCol + 1;
 
     char **reDrawnMaze = malloc(sizeof(char*) * newRow);
-    for (int i=0;i<newRow;i++) {
+    for(int i=0;i<newRow;i++) {
         reDrawnMaze[i] = malloc(sizeof(char) * (newCol+1));
-        for (int j=0; j<newCol;j++) {
+        for(int j=0;j<newCol;j++) {
             reDrawnMaze[i][j] = ' ';
         }
         reDrawnMaze[i][newCol] = '\0';
     }
 
-    for (int i=0;i<boxRow;i++) {
-        for (int j=0;j<boxCol;j++) {
+    for(int i=0;i<boxRow;i++) {
+        for(int j=0;j<boxCol;j++) {
 
             char tempBox = simpledMaze[i][j];
 
-            // 모퉁이 부분
-            reDrawnMaze[2*i][2*j] = '-';
-            reDrawnMaze[2*i+1][2*j+1] = '-';
-            
-
-            // 길
-            reDrawnMaze[2*i+1][2*j+1] = ' ';
-
-
-            
-            // 왼쪽 벽: 첫 줄이거나 왼쪽 칸의 오른쪽 벽이 막혀 있는 경우
+            // 왼쪽 벽: 첫 줄인 경우와  왼쪽 칸의 오른쪽 벽이 막혀 있는 경우
             if (j==0 || simpledMaze[i][j-1]=='c' || simpledMaze[i][j-1]=='d') {
                 reDrawnMaze[2*i+1][2*j] = '|';
             }
 
-            // 위쪽 벽: 첫 줄이거나 위쪽 칸의 아래쪽 벽이 막혀 있는 경우
+            // 위쪽 벽: 첫 줄인 경우와 위쪽 칸의 아래쪽 벽이 막혀 있는 경우
             if (i==0|| simpledMaze[i-1][j]=='b' || simpledMaze[i-1][j]=='d') {
                 reDrawnMaze[2*i][2*j+1] = '-';
             }
 
-            // 오른쪽 벽 (현재 칸 기준)
+            // 오른쪽 벽 (현재 칸의 오른쪽이 막힌 경우)
             if (tempBox=='c' || tempBox=='d') {
                 reDrawnMaze[2*i+1][2*j+2] = '|';
             }
 
-            // 아래쪽 벽 (현재 칸칸 기준)
+            // 아래쪽 벽 (현재 칸의 오른쪽이 막힌 경우우)
             if (tempBox=='b' || tempBox=='d') {
                 reDrawnMaze[2*i+2][2*j+1] = '-';
             }
-
-
-            // 마지막 행과 마지막 열 구현현
-            if (j==boxCol-1){
-                reDrawnMaze[2*i][2*j+2] = '|';
-            }
-            if (i==boxRow-1){
-                reDrawnMaze[2*i+2][2*j] = '-';
-            }
-
+            
+            // 교차점, 모퉁이, 튀어나온 끝 부분 "+"로 출력하기 위해 바꾸기
             for (int i = 0; i < newRow; i += 2) {
-                for (int j = 0; j < newCol; j += 2) {
+                for (int j = 0; j < newCol; j += 2) {            
+                    if (((j+1 < newCol && reDrawnMaze[i][j+1] == '-') ||
+                         (j-1 >= 0 && reDrawnMaze[i][j-1] == '-')) &&        //교차점     -+
+                        ((i+1 < newRow && reDrawnMaze[i+1][j] == '|') ||        ///        |
+                         (i-1 >= 0 && reDrawnMaze[i-1][j] == '|'))) {
             
-                    if (((j + 1 < newCol && reDrawnMaze[i][j + 1] == '-') ||
-                         (j - 1 >= 0     && reDrawnMaze[i][j - 1] == '-')) &&
-                        ((i + 1 < newRow && reDrawnMaze[i + 1][j] == '|') ||
-                         (i - 1 >= 0     && reDrawnMaze[i - 1][j] == '|'))) {
+                        reDrawnMaze[i][j] = '+';  
             
-                        reDrawnMaze[i][j] = '+';  // 양쪽 다 있으면 +
+                    } else if ((j+1 < newCol && reDrawnMaze[i][j+1] == '-') ||   // 교차x , 양 옆이 '-'인 경우 
+                               (j-1 >= 0 && reDrawnMaze[i][j-1] == '-')) {          
             
-                    } else if ((j + 1 < newCol && reDrawnMaze[i][j + 1] == '-') ||
-                               (j - 1 >= 0     && reDrawnMaze[i][j - 1] == '-')) {
+                        reDrawnMaze[i][j] = '-';  
             
-                        reDrawnMaze[i][j] = '-';  // 가로 벽만 있으면 -
+                    } else if ((i+1 < newRow && reDrawnMaze[i+1][j] == '|') ||
+                               (i-1 >= 0 && reDrawnMaze[i-1][j] == '|')) {
             
-                    } else if ((i + 1 < newRow && reDrawnMaze[i + 1][j] == '|') ||
-                               (i - 1 >= 0     && reDrawnMaze[i - 1][j] == '|')) {
-            
-                        reDrawnMaze[i][j] = '|';  // 세로 벽만 있으면 |
+                        reDrawnMaze[i][j] = '|';  // 교차 x, 위 아래 '|' 벽만 있는 경우우
             
                     } else {
                         reDrawnMaze[i][j] = ' ';  // 아무것도 없으면 공백
@@ -171,37 +155,43 @@ void drawMaze(char **simpledMaze, int boxRow, int boxCol) {
                 }
             }
             
-            for (int i = 0; i < newRow; i += 2) {
-                for (int j = 0; j < newCol; j += 2) {
+            // 마지막 행과 마지막 열 구현
+            if (j==boxCol-1){
+                reDrawnMaze[2*i][2*j+2] = '|';
+            }
+            if (i==boxRow-1){
+                reDrawnMaze[2*i+2][2*j] = '-';
+            }
+            
+            for(int i=0;i<newRow;i+=2) {
+                for(int j=0;j<newCol;j+=2) {
                     int wallCount = 0;
             
-                    if (j + 1 < newCol && reDrawnMaze[i][j + 1] == '-') wallCount++;  // 오른쪽
-                    if (j - 1 >= 0     && reDrawnMaze[i][j - 1] == '-') wallCount++;  // 왼쪽
-                    if (i + 1 < newRow && reDrawnMaze[i + 1][j] == '|') wallCount++;  // 아래
-                    if (i - 1 >= 0     && reDrawnMaze[i - 1][j] == '|') wallCount++;  // 위
+                    if (j+1 < newCol && reDrawnMaze[i][j+1] == '-') wallCount++;  // 오른쪽
+                    if (j-1 >= 0 && reDrawnMaze[i][j-1] == '-') wallCount++;  // 왼쪽
+                    if (i+1 < newRow && reDrawnMaze[i+1][j] == '|') wallCount++;  // 아래
+                    if (i-1 >= 0 && reDrawnMaze[i-1][j] == '|') wallCount++;  // 위
             
                     if (wallCount == 1) {
-                        reDrawnMaze[i][j] = '+';  // 오직 하나의 벽만 있을 때 +
-                    }
+                        reDrawnMaze[i][j] = '+';  // 인접한 문자들 중 세개가 공백인 경우(혼자 튀어나온 부분분)
+                    }                             //    이런 모양 ->  +-----       
                 }
             }
-
+            
+            
             
         }
     }
 
-
     printf("\n저장한 미로 재출력:\n");
     for (int i=0;i<newRow;i++) {
         printf("%s\n", reDrawnMaze[i]);
+    
     }
-
-
-
     for(int i=0;i<newRow;i++){
         free(reDrawnMaze[i]);
     }
     free(reDrawnMaze);
     
-    return 0;
+    return;
 }
